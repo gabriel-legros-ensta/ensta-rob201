@@ -1,0 +1,3 @@
+Profile :
+les fonctions compute() et run() prennent le plus de temps.
+Seules compute() est accessible
