@@ -3,20 +3,31 @@
 import random
 import numpy as np
 
-
+historique_rotation = ["gauche"] 
 def reactive_obst_avoid(lidar):
     """
     Simple obstacle avoidance
     lidar : placebot object with lidar data
     """
-    # TODO for TP1
 
-    laser_dist = lidar.get_sensor_values()
-    speed = 0.0
-    rotation_speed = 0.0
+    laser_dist = lidar.get_sensor_values() # laser_dist = [d0, d1,.., d360] 180° = devant le robot
+    if min(laser_dist[180-50:180+50+1])<60:
+        if(len(historique_rotation)>0 and historique_rotation[-1]=="left"):
+            rotation_speed = 0.5
+            historique_rotation.append("right")
+        else:
+            rotation_speed = -0.5
+            historique_rotation.append("left")
 
-    command = {"forward": speed,
-               "rotation": rotation_speed}
+        speed = 0.3
+        command = {"forward": speed, "rotation": rotation_speed}
+        if len(historique_rotation) > 5:
+            historique_rotation.pop(0)
+
+    else:
+        speed = 0.5
+        rotation_speed = 0
+        command = {"forward": speed, "rotation": rotation_speed}
 
     return command
 

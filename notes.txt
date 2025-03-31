@@ -1,3 +1,8 @@
 Profile :
 les fonctions compute() et run() prennent le plus de temps.
 Seules compute() est accessible
+
+Simulation :
+
+d_180 distance angle 180° = devant le robot
+on fait un petit cone autour de 180°
