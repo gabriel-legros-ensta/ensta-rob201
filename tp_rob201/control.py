@@ -3,34 +3,35 @@
 import random
 import numpy as np
 
-historique_rotation = ["gauche"] 
 def reactive_obst_avoid(lidar):
     """
-    Simple obstacle avoidance
-    lidar : placebot object with lidar data
+    Amélioration de l'évitement d'obstacles en fonction de l'angle de l'obstacle.
+    lidar : objet Place-Bot fournissant les données lidar
     """
+    laser_dist = lidar.get_sensor_values()  # laser_dist = [d0, d1, ..., d360] avec 180° devant le robot
 
-    laser_dist = lidar.get_sensor_values() # laser_dist = [d0, d1,.., d360] 180° = devant le robot
-    if min(laser_dist[180-50:180+50+1])<60:
-        if(len(historique_rotation)>0 and historique_rotation[-1]=="left"):
-            rotation_speed = 0.5
-            historique_rotation.append("right")
+    # On définit une plage pour analyser le secteur avant (par exemple de 160° à 200°)
+    front_sector = laser_dist[160:201]  # 201 car l'index 200 doit être inclus
+    min_distance = min(front_sector)
+
+    # Si un obstacle est détecté à moins de 60 unités dans le secteur
+    if min_distance < 60:
+        # Calculer la moyenne des distances pour la partie gauche et droite du secteur
+        left_avg = sum(laser_dist[160:180]) / 20  # de 160° à 179°
+        right_avg = sum(laser_dist[180:200]) / 20   # de 180° à 199°
+
+        # Choisir la direction opposée au côté où l'obstacle est le plus proche
+        if left_avg > right_avg:
+            rotation_speed = -0.5  # tourner vers la gauche (négatif)
         else:
-            rotation_speed = -0.5
-            historique_rotation.append("left")
+            rotation_speed = 0.5   # tourner vers la droite
 
-        speed = 0.3
-        command = {"forward": speed, "rotation": rotation_speed}
-        if len(historique_rotation) > 5:
-            historique_rotation.pop(0)
-
+        speed = 0.1  # avancer lentement lors de l'évitement
     else:
-        speed = 0.5
-        rotation_speed = 0
-        command = {"forward": speed, "rotation": rotation_speed}
+        speed = 0.3
+        rotation_speed = 0  # pas de rotation si aucun obstacle proche
 
-    return command
-
+    return {"forward": speed, "rotation": rotation_speed}
 
 def potential_field_control(lidar, current_pose, goal_pose):
     """
