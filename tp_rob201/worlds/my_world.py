@@ -26,4 +26,5 @@ class MyWorld(WorldAbstract):
         angle_degrees = 180
         angle = angle_degrees * (3.141592653589793 / 180) 
         self._robot_pos = ((450.0, 220), angle)
+        #self._robot_pos = ((-400, 0), angle)
         self._playground.add(robot, self._robot_pos)
