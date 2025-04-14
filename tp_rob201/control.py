@@ -2,6 +2,9 @@
 
 import random
 import numpy as np
+from tiny_slam import TinySlam
+from occupancy_grid import OccupancyGrid
+
 
 def reactive_obst_avoid(lidar):
     """
@@ -94,7 +97,7 @@ def potential_field_control(lidar, current_pose, goal_pose):
     v = np.clip(np.linalg.norm(total_gradient), -1.0, 1.0)
     w = np.clip(angle_error, -1.0, 1.0)
 
-
+    
     return {"forward": v, "rotation": w}
 
 

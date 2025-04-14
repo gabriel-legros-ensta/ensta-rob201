@@ -34,12 +34,18 @@ class MyRobotSlam(RobotAbstract):
         # Here we cheat to get an occupancy grid size that's not too large, by using the
         # robot's starting position and the maximum map size that we shouldn't know.
         size_area = (1400, 1000)
-        robot_position = (439.0, 195)
+        robot_position = (-400, 0) # 439.0, 195
         self.occupancy_grid = OccupancyGrid(x_min=-(size_area[0] / 2 + robot_position[0]),
                                             x_max=size_area[0] / 2 - robot_position[0],
                                             y_min=-(size_area[1] / 2 + robot_position[1]),
                                             y_max=size_area[1] / 2 - robot_position[1],
                                             resolution=2)
+        # self.occupancy_grid = OccupancyGrid(x_min=-(size_area[0] / 2 + robot_position[0]),
+        #                                     x_max=size_area[0] / 2 - robot_position[0],
+        #                                     y_min=-(size_area[1] / 2 + robot_position[1]),
+        #                                     y_max=size_area[1] / 2 - robot_position[1],
+        #                                     resolution=2)
+
 
         self.tiny_slam = TinySlam(self.occupancy_grid)
         self.planner = Planner(self.occupancy_grid)
@@ -51,7 +57,7 @@ class MyRobotSlam(RobotAbstract):
         """
         Main control function executed at each time step
         """
-        return self.control_tp2()
+        return self.control_tp1()
 
     def control_tp1(self):
         """
@@ -60,6 +66,8 @@ class MyRobotSlam(RobotAbstract):
         """
         # Compute new command speed to perform obstacle avoidance
         command = reactive_obst_avoid(self.lidar())
+        pose = self.odometer_values()
+        self.tiny_slam.update_map(self.lidar(), pose)
         return command
 
     def control_tp2(self):
@@ -73,5 +81,9 @@ class MyRobotSlam(RobotAbstract):
 
         # Compute new command speed to perform obstacle avoidance
         command = potential_field_control(self.lidar(), pose, goal)
+        self.tiny_slam.update_map(self.lidar(), pose)
         
         return command
+
+
+
