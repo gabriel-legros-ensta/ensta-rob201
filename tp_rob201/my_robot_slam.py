@@ -64,9 +64,11 @@ class MyRobotSlam(RobotAbstract):
         Control function for TP1
         Control funtion with minimal random motion
         """
-        # Compute new command speed to perform obstacle avoidance
-        command = reactive_obst_avoid(self.lidar())
+    
+        #command = reactive_obst_avoid(self.lidar())  <------
+        command = {"forward": 0, "rotation": 0}
         pose = self.odometer_values()
+
         self.tiny_slam.update_map(self.lidar(), pose)
         score = self.tiny_slam._score(self.lidar(), self.tiny_slam.get_corrected_pose(pose, np.array(self.tiny_slam.odom_pose_ref)))
         print(score)
