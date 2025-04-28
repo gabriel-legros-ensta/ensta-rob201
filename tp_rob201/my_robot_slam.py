@@ -68,6 +68,8 @@ class MyRobotSlam(RobotAbstract):
         command = reactive_obst_avoid(self.lidar())
         pose = self.odometer_values()
         self.tiny_slam.update_map(self.lidar(), pose)
+        score = self.tiny_slam._score(self.lidar(), self.tiny_slam.get_corrected_pose(pose, np.array(self.tiny_slam.odom_pose_ref)))
+        print(score)
         return command
 
     def control_tp2(self):
@@ -82,6 +84,7 @@ class MyRobotSlam(RobotAbstract):
         # Compute new command speed to perform obstacle avoidance
         command = potential_field_control(self.lidar(), pose, goal)
         self.tiny_slam.update_map(self.lidar(), pose)
+        self.tiny_slam._score(self.lidar(), pose)
         
         return command
 
