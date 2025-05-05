@@ -75,13 +75,24 @@ class TinySlam:
         """
         # TODO for TP4
 
-        score = self._score(lidar, self.get_corrected_pose(raw_odom_pose, np.array(self.odom_pose_ref)))
-        while(...):
-            offset = [np.random.normal(loc=0.0, scale=1) for _ in range(2)]
+        current_pose = self.odom_pose_ref.copy()
+        best_score = self._score(lidar, self.get_corrected_pose(raw_odom_pose, current_pose))
+        best_pose = current_pose.copy()
 
-        best_score = 0
-
+        n = 0
+        while n < 50:
+            offset = np.random.normal(loc=0.0, scale=1, size=3)
+            test_pose = best_pose + offset
+            score = self._score(lidar, self.get_corrected_pose(raw_odom_pose, test_pose))
+            if score > best_score:
+                best_score = score
+                best_pose = test_pose
+                n = 0
+            else:
+                n += 1
+        self.odom_pose_ref = best_pose
         return best_score
+
 
     def update_map(self, lidar, pose): # pose : odométrie
         """
