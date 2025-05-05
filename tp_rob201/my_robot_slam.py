@@ -69,8 +69,8 @@ class MyRobotSlam(RobotAbstract):
         command = {"forward": 0, "rotation": 0}
         pose = self.odometer_values()
 
-        self.tiny_slam.update_map(self.lidar(), pose)
-        score = self.tiny_slam._score(self.lidar(), self.tiny_slam.get_corrected_pose(pose, np.array(self.tiny_slam.odom_pose_ref)))
+        self.tiny_slam.update_map(self.lidar(), pose)   # odom = world pour t=0
+        score = self.tiny_slam._score(self.lidar(), pose)  #self.tiny_slam.get_corrected_pose(pose, np.array(self.tiny_slam.odom_pose_ref)
         print(score)
         return command
 

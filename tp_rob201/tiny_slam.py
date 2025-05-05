@@ -45,7 +45,7 @@ class TinySlam:
   
             if 0 <= x_m < 500 and 0 <= y_m < 500:
             # Si dans les limites, on ajoute la valeur correspondante dans occupancy_map au score
-                score += self.grid.occupancy_map[y_m, x_m]
+                score += self.grid.occupancy_map[x_m, y_m]
 
         return score
 
@@ -94,16 +94,18 @@ class TinySlam:
         sensor_values = np.array(lidar.get_sensor_values())
         ray_angles = np.array(lidar.get_ray_angles())
 
-        x = pose[0] + sensor_values * np.cos(ray_angles + pose[2])
-        y = pose[1] + sensor_values * np.sin(ray_angles + pose[2])
+        x = pose[0] + (sensor_values-5) * np.cos(ray_angles + pose[2])
+        y = pose[1] + (sensor_values-5) * np.sin(ray_angles + pose[2])
         # x = pose[0] - sensor_values * np.cos(ray_angles + pose[2]) pour les add_value ?
         for i in range(len(x)):
-            self.grid.add_value_along_line(pose[0], pose[1], x[i]-3, y[i]-3, -1)
-            self.grid.add_value_along_line(x[i]-2, y[i]-2, x[i]-1, y[i]-1, 0.5)
-            self.grid.add_value_along_line(x[i]+1, y[i]+1, x[i]+2, y[i]+2, 0.5)
-            self.grid.add_value_along_line(x[i]+3, y[i]+3, x[i]+4, y[i]+4, -1)
+             self.grid.add_value_along_line(pose[0], pose[1], x[i], y[i], -1)
+            # self.grid.add_value_along_line(x[i]-2, y[i]-2, x[i]-1, y[i]-1, 0.5)
+            # self.grid.add_value_along_line(x[i]+1, y[i]+1, x[i]+2, y[i]+2, 0.5)
+            # self.grid.add_value_along_line(x[i]+3, y[i]+3, x[i]+4, y[i]+4, -1)
+        x = pose[0] + (sensor_values-5) * np.cos(ray_angles + pose[2])
+        y = pose[1] + (sensor_values-5) * np.sin(ray_angles + pose[2])
 
-        self.grid.add_map_points(x, y, 1)
+        self.grid.add_map_points(x, y, 2)
     
 
         self.grid.occupancy_map = np.clip(self.grid.occupancy_map, -40, 40)
