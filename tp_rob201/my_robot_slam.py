@@ -64,14 +64,19 @@ class MyRobotSlam(RobotAbstract):
         Control function for TP1
         Control funtion with minimal random motion
         """
-        command = {"forward": 0, "rotation": 0}
-        #command = reactive_obst_avoid(self.lidar())  
+        #command = {"forward": 0, "rotation": 0}
+        command = reactive_obst_avoid(self.lidar())  
         pose = self.odometer_values()
-        best_score = self.tiny_slam.localise(self.lidar(), pose)
-        print(best_score)
-        self.tiny_slam.update_map(self.lidar(), self.tiny_slam.odom_pose_ref)   # odom = world pour t=0
-        # score = self.tiny_slam._score(self.lidar(), pose)  #self.tiny_slam.get_corrected_pose(pose, np.array(self.tiny_slam.odom_pose_ref)
-        # print(score)
+        self.counter +=1
+        if self.counter < 10 :
+            corrected_pose = self.tiny_slam.get_corrected_pose(pose)
+            self.tiny_slam.update_map(self.lidar(), corrected_pose)
+        else:
+            best_score = self.tiny_slam.localise(self.lidar(), pose)
+            print(best_score)
+            if best_score > 50:
+                corrected_pose = self.tiny_slam.get_corrected_pose(pose)
+                self.tiny_slam.update_map(self.lidar(), corrected_pose)   # odom = world pour t=0
         return command
 
     def control_tp2(self):

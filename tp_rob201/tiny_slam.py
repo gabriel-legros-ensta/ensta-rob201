@@ -58,7 +58,8 @@ class TinySlam:
                         use self.odom_pose_ref if not given
         """
         # TODO for TP4
-
+        if odom_pose_ref is None:
+            odom_pose_ref=self.odom_pose_ref
         xO,yO,thetaO = odom_pose
         xOref,yOref,thetaOref = odom_pose_ref
         corrected_x = xOref + xO * np.cos(thetaOref) - yO * np.sin(thetaOref)
@@ -81,7 +82,7 @@ class TinySlam:
 
         n = 0
         while n < 50:
-            offset = np.random.normal(loc=0.0, scale=1, size=3)
+            offset = np.random.normal(loc=0.0, scale=0.1, size=3)
             test_pose = best_pose + offset
             score = self._score(lidar, self.get_corrected_pose(raw_odom_pose, test_pose))
             if score > best_score:
@@ -94,7 +95,7 @@ class TinySlam:
         return best_score
 
 
-    def update_map(self, lidar, pose): # pose : odométrie
+    def update_map(self, lidar, pose): 
         """
         Bayesian map update with new observation
         lidar : placebot object with lidar data
