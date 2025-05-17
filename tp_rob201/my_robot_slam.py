@@ -64,34 +64,53 @@ class MyRobotSlam(RobotAbstract):
         Control function for TP1
         Control funtion with minimal random motion
         """
-        #command = {"forward": 0, "rotation": 0}
-        command = reactive_obst_avoid(self.lidar())  
         pose = self.odometer_values()
+        goal = [800, 70, 0]
         self.counter +=1
-        if self.counter < 10 :
+        if self.counter < 30 :
             corrected_pose = self.tiny_slam.get_corrected_pose(pose)
+            command = potential_field_control(self.lidar(), pose, goal)
             self.tiny_slam.update_map(self.lidar(), corrected_pose)
         else:
             best_score = self.tiny_slam.localise(self.lidar(), pose)
             print(best_score)
-            if best_score > 40:
+            if best_score > 20: #40
                 corrected_pose = self.tiny_slam.get_corrected_pose(pose)
-                self.tiny_slam.update_map(self.lidar(), corrected_pose)   # odom = world pour t=0
+                command = potential_field_control(self.lidar(), pose, goal)
+                self.tiny_slam.update_map(self.lidar(), corrected_pose)
+
+                traj = self.planner.plan(corrected_pose, goal)
+                traj = np.array(traj)
+                self.occupancy_grid.display_cv(corrected_pose, goal, traj)   # odom = world pour t=0
         return command
 
     def control_tp2(self):
+        pose = self.odometer_values()
+        goal = [800, 100, 0] # _ 100 _
+        #goal = [0,0,0]
+
+        # Compute new command speed to perform obstacle avoidance
+        command = potential_field_control(self.lidar(), pose, goal)
+        return command
+    
+    def control_tp3(self):
         """
         Control function for TP2
         Main control function with full SLAM, random exploration and path planning
         """
         pose = self.odometer_values()
+        corrected_pose = self.tiny_slam.get_corrected_pose(pose)
         goal = [800, 70, 0] # _ 100 _
         #goal = [0,0,0]
-
         # Compute new command speed to perform obstacle avoidance
         command = potential_field_control(self.lidar(), pose, goal)
-        self.tiny_slam.update_map(self.lidar(), pose)
-        self.tiny_slam._score(self.lidar(), pose)
+        self.tiny_slam.update_map(self.lidar(), corrected_pose)
+
+
+        #self.tiny_slam._score(self.lidar(), corrected_pose)
+        # traj = self.planner.plan(corrected_pose, goal)
+        # traj = np.array(traj)
+        # self.occupancy_grid.display_cv(corrected_pose, goal, traj)       
         
         return command
 

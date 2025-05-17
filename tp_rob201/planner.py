@@ -49,6 +49,44 @@ class Planner:
         cell_2 = np.array(cell_2)
         return np.linalg.norm(cell_1 - cell_2)
 
+    def A_Star(self, start, goal):
+        sx, sy = self.grid.conv_world_to_map(start[0], start[1])
+        gx, gy = self.grid.conv_world_to_map(goal[0], goal[1])
+        start = [sx, sy]
+        goal = [gx, gy]
+
+        to_visit = {tuple(start)}
+        prev = {}
+        cost_from_start = {}
+        est_total_cost = {}
+
+        cost_from_start[tuple(start)] = 0
+        est_total_cost[tuple(start)] = self.heuristic(np.array(start), np.array(goal))
+
+        while to_visit:
+            node = min(to_visit, key=lambda k: est_total_cost[k])
+            if node == tuple(goal):
+                return self.reconstruct_path(prev, node)
+
+            to_visit.remove(node)
+            adj = self.get_neighbors(np.array(node))
+            for n in adj:
+                n_t = tuple(n)
+                temp_g = cost_from_start[node] + self.heuristic(np.array(node), n)
+                if temp_g < cost_from_start.get(n_t, np.inf):
+                    prev[n_t] = node
+                    cost_from_start[n_t] = temp_g
+                    est_total_cost[n_t] = temp_g + self.heuristic(n, np.array(goal))
+                    if n_t not in to_visit:
+                        to_visit.add(n_t)
+        return []
+    
+    def reconstruct_path(self, came_from, current):
+        total_path = [current]
+        while tuple(current) in came_from:
+            current = came_from[tuple(current)]
+            total_path.insert(0, current)  # prepend
+        return total_path
 
     def plan(self, start, goal):
         """
@@ -57,47 +95,8 @@ class Planner:
         goal : [x, y, theta] nparray, goal pose in world coordinates (theta unused)
         """
         # TODO for TP5
-
-        def reconstruct_path(came_from, current):
-            total_path = [current]
-            while tuple(current) in came_from:
-                current = came_from[tuple(current)]
-                total_path.insert(0, current)  # prepend
-            return total_path
-
-        def A_Star(self, start, goal):
-            sx, sy = self.grid.conv_world_to_map(start[0], start[1])
-            gx, gy = self.grid.conv_world_to_map(goal[0], goal[1])
-            start = [sx, sy]
-            goal = [gx, gy]
-
-            to_visit = {tuple(start)}
-            prev = {}
-            cost_from_start = {}
-            est_total_cost = {}
-
-            cost_from_start[tuple(start)] = 0
-            est_total_cost[tuple(start)] = self.heuristic(np.array(start), np.array(goal))
-
-            while to_visit:
-                node = min(to_visit, key=lambda k: est_total_cost[k])
-                if node == tuple(goal):
-                    return reconstruct_path(prev, node)
-
-                to_visit.remove(node)
-                adj = self.get_neighbors(np.array(node))
-                for n in adj:
-                    n_t = tuple(n)
-                    temp_g = cost_from_start[node] + self.heuristic(np.array(node), n)
-                    if temp_g < cost_from_start[n_t]:
-                        prev[n_t] = node
-                        cost_from_start[n_t] = temp_g
-                        est_total_cost[n_t] = temp_g + self.heuristic(n, np.array(goal))
-                        if n_t not in to_visit:
-                            to_visit.add(n_t)
-            return []
         
-        path = A_Star(start, goal)
+        path = self.A_Star(start, goal)
         for i in range(len(path)):
             x, y = path[i]
             path[i] = self.grid.conv_map_to_world(x, y)

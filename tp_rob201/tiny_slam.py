@@ -81,7 +81,7 @@ class TinySlam:
         best_pose = current_pose.copy()
 
         n = 0
-        while n < 50:
+        while n < 100:
             offset = np.random.normal(loc=0.0, scale=0.1, size=3)
             test_pose = best_pose + offset
             score = self._score(lidar, self.get_corrected_pose(raw_odom_pose, test_pose))
