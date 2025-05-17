@@ -66,6 +66,7 @@ class MyRobotSlam(RobotAbstract):
         """
         pose = self.odometer_values()
         goal = [800, 70, 0]
+        command = potential_field_control(self.lidar(), pose, goal)
         self.counter +=1
         if self.counter < 30 :
             corrected_pose = self.tiny_slam.get_corrected_pose(pose)
@@ -81,7 +82,7 @@ class MyRobotSlam(RobotAbstract):
 
                 traj = self.planner.plan(corrected_pose, goal)
                 traj = np.array(traj)
-                self.occupancy_grid.display_cv(corrected_pose, goal, traj)   # odom = world pour t=0
+                self.occupancy_grid.display_cv(corrected_pose, goal, traj)  
         return command
 
     def control_tp2(self):
