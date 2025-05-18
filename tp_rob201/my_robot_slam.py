@@ -88,8 +88,7 @@ class MyRobotSlam(RobotAbstract):
     def control_tp2(self):
         pose = self.odometer_values()
         goal = [800, 100, 0] # _ 100 _
-        #goal = [0,0,0]
-
+    
         # Compute new command speed to perform obstacle avoidance
         command = potential_field_control(self.lidar(), pose, goal)
         return command
@@ -102,17 +101,11 @@ class MyRobotSlam(RobotAbstract):
         pose = self.odometer_values()
         corrected_pose = self.tiny_slam.get_corrected_pose(pose)
         goal = [800, 70, 0] # _ 100 _
-        #goal = [0,0,0]
+
         # Compute new command speed to perform obstacle avoidance
         command = potential_field_control(self.lidar(), pose, goal)
         self.tiny_slam.update_map(self.lidar(), corrected_pose)
 
-
-        #self.tiny_slam._score(self.lidar(), corrected_pose)
-        # traj = self.planner.plan(corrected_pose, goal)
-        # traj = np.array(traj)
-        # self.occupancy_grid.display_cv(corrected_pose, goal, traj)       
-        
         return command
 
 
